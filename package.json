@@ -2,7 +2,8 @@
   "name": "todoist-project",
   "displayName": "todoist-project",
   "description": "Use todoist CLI for managing project-scoped todos",
-  "version": "0.0.1",
+	"version": "0.0.1",
+	"publisher": "waymondo",
   "engines": {
     "vscode": "^1.42.0"
   },
