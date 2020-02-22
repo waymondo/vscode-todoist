@@ -1,45 +1,78 @@
 {
-	"name": "todoist-project",
-	"displayName": "todoist-project",
-	"description": "Use todoist CLI for managing project-scoped todos",
-	"version": "0.0.1",
-	"engines": {
-		"vscode": "^1.42.0"
-	},
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:extension.helloWorld"
-	],
-	"main": "./out/extension.js",
-	"contributes": {
-		"commands": [
+  "name": "todoist-project",
+  "displayName": "todoist-project",
+  "description": "Use todoist CLI for managing project-scoped todos",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.42.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+		"onCommand:extension.todoistProjectCapture",
+		"onCommand:extension.todoistProjectOpen",
+		"onCommand:extension.todoistListTodos"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.todoistProjectCapture",
+        "title": "Todoist Project Capture"
+			},
 			{
-				"command": "extension.helloWorld",
-				"title": "Hello World"
+				"command": "extension.todoistProjectOpen",
+				"title": "Todoist Project Open"
+			},
+			{
+				"command": "extension.todoistListTodos",
+				"title": "Todoist List Todos"
 			}
-		]
-	},
-	"scripts": {
-		"vscode:prepublish": "yarn run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"pretest": "yarn run compile && yarn run lint",
-		"test": "node ./out/test/runTest.js"
-	},
-	"devDependencies": {
-		"@types/glob": "^7.1.1",
-		"@types/mocha": "^7.0.1",
-		"@types/node": "^12.11.7",
-		"@types/vscode": "^1.42.0",
-		"eslint": "^6.8.0",
-		"@typescript-eslint/parser": "^2.18.0",
-		"@typescript-eslint/eslint-plugin": "^2.18.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.0.1",
-		"typescript": "^3.7.5",
-		"vscode-test": "^1.3.0"
-	}
+    ],
+    "configuration": [
+      {
+        "title": "Todoist",
+        "properties": {
+          "todoist.apiToken": {
+            "type": "string",
+            "default": null,
+            "description": "Your Todoist API Token",
+            "scope": "application"
+					},
+					"todoist.projectId": {
+            "type": "string",
+            "default": null,
+            "description": "Your global or workspace-specific project ID",
+            "scope": "window"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "yarn run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./",
+    "pretest": "yarn run compile && yarn run lint",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^12.11.7",
+    "@types/node-fetch": "^2.5.4",
+    "@types/vscode": "^1.42.0",
+    "@typescript-eslint/eslint-plugin": "^2.18.0",
+    "@typescript-eslint/parser": "^2.18.0",
+    "eslint": "^6.8.0",
+    "glob": "^7.1.6",
+    "mocha": "^7.0.1",
+    "typescript": "^3.7.5",
+    "vscode-test": "^1.3.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  }
 }
