@@ -13,7 +13,7 @@ import {
 } from "vscode"
 import fetch from "node-fetch"
 
-const EXTENSION_ID = `waymondo.todoist-project`
+const EXTENSION_ID = `waymondo.todoist`
 const HOST = `https://api.todoist.com/rest/v1`
 
 type Task = {
@@ -74,6 +74,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string): 
       label: project.name,
     }),
   )
+  const configTarget = workspace.rootPath ? ConfigurationTarget.Workspace : ConfigurationTarget.Global
   const quickPick = window.createQuickPick()
   quickPick.placeholder = `Choose a Todoist Project for this workspace`
   quickPick.items = projectQPIs.concat([{ label: `Create a new project` }])
@@ -81,7 +82,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string): 
     // @ts-ignore
     projectId = items[0].id
     if (projectId) {
-      await config.update(`todoist.projectId`, projectId, ConfigurationTarget.Global)
+      await config.update(`todoist.projectId`, projectId, configTarget)
       commands.executeCommand(command)
     } else {
       const inputString = await window.showInputBox({ placeHolder: `Enter Todoist Project Name` })
@@ -99,7 +100,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string): 
         },
       })
       const project = await response.json()
-      await config.update(`todoist.projectId`, project.id, ConfigurationTarget.Global)
+      await config.update(`todoist.projectId`, project.id, configTarget)
       commands.executeCommand(command)
     }
     quickPick.dispose()
@@ -134,7 +135,9 @@ const uriHandler: UriHandler = {
     await window.showTextDocument(textDocument)
     const range = new Range(startLine, 0, endLine, 0)
     const editor = window.activeTextEditor
-    if (!editor) { return }
+    if (!editor) {
+      return
+    }
 
     editor.selection = new Selection(range.start, range.end)
     editor.revealRange(range)
@@ -143,14 +146,13 @@ const uriHandler: UriHandler = {
 
 export function activate(context: ExtensionContext) {
   window.registerUriHandler(uriHandler)
-
-  const todoistProjectCapture = commands.registerCommand(`extension.todoistProjectCapture`, async () => {
+  const todoistCapture = commands.registerCommand(`extension.todoistCapture`, async () => {
     const apiToken = getApiToken()
     if (!apiToken) {
       return
     }
 
-    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistProjectCapture`)
+    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`)
     if (!projectId) {
       return
     }
@@ -161,10 +163,9 @@ export function activate(context: ExtensionContext) {
       valueSelection: [0, 0],
     }
     if (activeSelection) {
-      const documentUri = window.activeTextEditor?.document.uri
-
+      const fileName = window.activeTextEditor?.document.fileName
       const lineNumber = activeSelection.start.line
-      inputBoxOptions.value = `\n ${env.uriScheme}://${EXTENSION_ID}/${documentUri}#${lineNumber}`
+      inputBoxOptions.value = `\n ${env.uriScheme}://${EXTENSION_ID}/${fileName}#${lineNumber}`
     }
     const inputString = await window.showInputBox(inputBoxOptions)
     if (!inputString) {
@@ -193,13 +194,13 @@ export function activate(context: ExtensionContext) {
     }
   })
 
-  const todoistListTodos = commands.registerCommand(`extension.todoistListTodos`, async () => {
+  const todoistTodos = commands.registerCommand(`extension.todoistTodos`, async () => {
     const apiToken = getApiToken()
     if (!apiToken) {
       return
     }
 
-    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistProjectCapture`)
+    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`)
     if (!projectId) {
       return
     }
@@ -238,13 +239,13 @@ export function activate(context: ExtensionContext) {
     quickPick.show()
   })
 
-  const todoistProjectOpen = commands.registerCommand(`extension.todoistProjectOpen`, async () => {
+  const todoistOpen = commands.registerCommand(`extension.todoistOpen`, async () => {
     const apiToken = getApiToken()
     if (!apiToken) {
       return
     }
 
-    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistProjectCapture`)
+    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`)
     if (!projectId) {
       return
     }
@@ -252,9 +253,9 @@ export function activate(context: ExtensionContext) {
     env.openExternal(Uri.parse(`todoist://project?id=${projectId}`))
   })
 
-  context.subscriptions.push(todoistProjectCapture)
-  context.subscriptions.push(todoistListTodos)
-  context.subscriptions.push(todoistProjectOpen)
+  context.subscriptions.push(todoistCapture)
+  context.subscriptions.push(todoistTodos)
+  context.subscriptions.push(todoistOpen)
 }
 
 export function deactivate() {

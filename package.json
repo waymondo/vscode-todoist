@@ -1,7 +1,7 @@
 {
-  "name": "todoist-project",
-  "displayName": "todoist-project",
-  "description": "Use todoist CLI for managing project-scoped todos",
+  "name": "todoist",
+  "displayName": "todoist",
+  "description": "Use Todoist  for managing project-scoped todos",
 	"version": "0.0.1",
 	"publisher": "waymondo",
   "engines": {
@@ -11,25 +11,39 @@
     "Other"
   ],
   "activationEvents": [
-		"onCommand:extension.todoistProjectCapture",
-		"onCommand:extension.todoistProjectOpen",
-		"onCommand:extension.todoistListTodos"
+		"onCommand:extension.todoistCapture",
+		"onCommand:extension.todoistOpen",
+		"onCommand:extension.todoistTodos"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "extension.todoistProjectCapture",
-        "title": "Todoist Project Capture"
+        "command": "extension.todoistCapture",
+        "title": "Todoist Capture"
 			},
 			{
-				"command": "extension.todoistProjectOpen",
-				"title": "Todoist Project Open"
+				"command": "extension.todoistOpen",
+				"title": "Todoist Open"
 			},
 			{
-				"command": "extension.todoistListTodos",
-				"title": "Todoist List Todos"
+				"command": "extension.todoistTodos",
+				"title": "Todoist Todos"
 			}
+    ],
+    "keybindings": [
+      {
+        "command": "extension.todoistCapture",
+        "key": "alt+t c"
+      },
+      {
+        "command": "extension.todoistOpen",
+        "key": "alt+t o"
+      },
+      {
+        "command": "extension.todoistTodos",
+        "key": "alt+t t"
+      }
     ],
     "configuration": [
       {
