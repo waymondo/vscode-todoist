@@ -49,6 +49,8 @@ type TaskRequestBody = {
   project_id?: number
 }
 
+type Scope = `project` | `global`
+
 const getApiToken = function() {
   const apiToken: string | undefined = workspace.getConfiguration().get(`todoist.apiToken`)
   if (!apiToken) {
@@ -57,7 +59,12 @@ const getApiToken = function() {
   return apiToken
 }
 
-const getOrCreateProjectId = async function(apiToken: string, command: string): Promise<number | null> {
+const getOrCreateProjectId = async function(apiToken: string, command: string, scope: Scope): Promise<number | null> {
+  if (scope === `project` && !workspace.workspaceFolders) {
+    window.showWarningMessage(`Not within a workspace`)
+    return null
+  }
+
   const config = workspace.getConfiguration()
   let projectId = config.get(`todoist.projectId`)
   if (projectId) {
@@ -74,7 +81,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string): 
       label: project.name,
     }),
   )
-  const configTarget = workspace.rootPath ? ConfigurationTarget.Workspace : ConfigurationTarget.Global
+  const configTarget = scope === `project` ? ConfigurationTarget.Workspace : ConfigurationTarget.Global
   const quickPick = window.createQuickPick()
   quickPick.placeholder = `Choose a Todoist Project for this workspace`
   quickPick.items = projectQPIs.concat([{ label: `Create a new project` }])
@@ -124,8 +131,9 @@ const uriHandler: UriHandler = {
   handleUri: async (uri: Uri) => {
     const { path, fragment } = uri
     let [startLine, endLine] = fragment?.split(`-`).map(number => number && parseInt(number))
+    const goToRange = !!startLine
     if (!startLine) {
-      startLine = 0
+      startLine = 1
     }
     if (!endLine) {
       endLine = startLine
@@ -133,129 +141,155 @@ const uriHandler: UriHandler = {
     const textDocument = await workspace.openTextDocument(path)
 
     await window.showTextDocument(textDocument)
-    const range = new Range(startLine, 0, endLine, 0)
+    const range = new Range(startLine - 1, 0, endLine - 1, 0)
     const editor = window.activeTextEditor
     if (!editor) {
       return
     }
-
-    editor.selection = new Selection(range.start, range.end)
-    editor.revealRange(range)
+    if (goToRange) {
+      editor.selection = new Selection(range.start, range.end)
+      editor.revealRange(range)
+    }
   },
+}
+
+const captureTodo = async (scope: Scope) => {
+  const apiToken = getApiToken()
+  if (!apiToken) {
+    return
+  }
+
+  const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`, scope)
+  if (!projectId) {
+    return
+  }
+
+  const activeSelection = window.activeTextEditor?.selection
+  const inputBoxOptions: InputBoxOptions = {
+    prompt: `Enter Todo`,
+    valueSelection: [0, 0],
+  }
+  if (activeSelection && !activeSelection.isEmpty) {
+    const fileName = window.activeTextEditor?.document.fileName
+    const lineNumber = activeSelection.start.line
+    inputBoxOptions.value = `\n ${env.uriScheme}://${EXTENSION_ID}/${fileName}#${lineNumber}`
+  }
+  const inputString = await window.showInputBox(inputBoxOptions)
+  if (!inputString) {
+    return
+  }
+
+  let body: TaskRequestBody = {
+    content: activeSelection ? `${inputString} ` : inputString,
+  }
+  if (projectId) {
+    body.project_id = projectId
+  }
+  const response = await fetch(HOST + `/tasks`, {
+    method: `POST`,
+    body: JSON.stringify(body),
+    headers: {
+      "Content-Type": `application/json`,
+      Authorization: `Bearer ${apiToken}`,
+    },
+  })
+  const task = await response.json()
+  if (task.id) {
+    window.showInformationMessage(`Task Created`)
+  } else {
+    window.showWarningMessage(`There was an error`)
+  }
+}
+
+const listTodos = async (scope: Scope) => {
+  const apiToken = getApiToken()
+  if (!apiToken) {
+    return
+  }
+
+  const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`, scope)
+  if (!projectId) {
+    return
+  }
+
+  const path = projectId ? `/tasks?project_id=${projectId}` : `/tasks`
+  const response = await fetch(HOST + path, {
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+  })
+  const tasks = await response.json()
+
+  let quickPickItems = makeTaskQPIs(tasks)
+  const quickPick = window.createQuickPick()
+  quickPick.items = quickPickItems
+  quickPick.onDidChangeSelection(items => {
+    // @ts-ignore
+    const itemIds = items.map(item => item.id)
+    // @ts-ignore
+    quickPick.items.forEach((item: TaskQPI) => {
+      if (!itemIds.includes(item.id)) {
+        const completed = !item.completed
+        item.completed = completed
+        const requestVerb = completed ? `close` : `reopen`
+        fetch(HOST + `/tasks/${item.id}/${requestVerb}`, {
+          method: `POST`,
+          headers: {
+            Authorization: `Bearer ${apiToken}`,
+          },
+        })
+      }
+    })
+    quickPick.items = makeTaskQPIs(quickPickItems)
+  })
+  quickPick.onDidHide(() => quickPick.dispose())
+  quickPick.show()
+}
+
+const openProject = async (scope: Scope) => {
+  const apiToken = getApiToken()
+  if (!apiToken) {
+    return
+  }
+
+  const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`, scope)
+  if (!projectId) {
+    return
+  }
+
+  env.openExternal(Uri.parse(`todoist://project?id=${projectId}`))
 }
 
 export function activate(context: ExtensionContext) {
   window.registerUriHandler(uriHandler)
-  const todoistCapture = commands.registerCommand(`extension.todoistCapture`, async () => {
-    const apiToken = getApiToken()
-    if (!apiToken) {
-      return
-    }
 
-    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`)
-    if (!projectId) {
-      return
-    }
-
-    const activeSelection = window.activeTextEditor?.selection
-    const inputBoxOptions: InputBoxOptions = {
-      prompt: `Enter Todo`,
-      valueSelection: [0, 0],
-    }
-    if (activeSelection) {
-      const fileName = window.activeTextEditor?.document.fileName
-      const lineNumber = activeSelection.start.line
-      inputBoxOptions.value = `\n ${env.uriScheme}://${EXTENSION_ID}/${fileName}#${lineNumber}`
-    }
-    const inputString = await window.showInputBox(inputBoxOptions)
-    if (!inputString) {
-      return
-    }
-
-    let body: TaskRequestBody = {
-      content: activeSelection ? `${inputString} ` : inputString,
-    }
-    if (projectId) {
-      body.project_id = projectId
-    }
-    const response = await fetch(HOST + `/tasks`, {
-      method: `POST`,
-      body: JSON.stringify(body),
-      headers: {
-        "Content-Type": `application/json`,
-        Authorization: `Bearer ${apiToken}`,
-      },
-    })
-    const task = await response.json()
-    if (task.id) {
-      window.showInformationMessage(`Task Created`)
-    } else {
-      window.showWarningMessage(`There was an error`)
-    }
+  const todoistCaptureProject = commands.registerCommand(`extension.todoistCaptureProject`, () => {
+    captureTodo(`project`)
+  })
+  const todoistCaptureGlobal = commands.registerCommand(`extension.todoistCaptureGlobal`, () => {
+    captureTodo(`global`)
   })
 
-  const todoistTodos = commands.registerCommand(`extension.todoistTodos`, async () => {
-    const apiToken = getApiToken()
-    if (!apiToken) {
-      return
-    }
-
-    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`)
-    if (!projectId) {
-      return
-    }
-
-    const path = projectId ? `/tasks?project_id=${projectId}` : `/tasks`
-    const response = await fetch(HOST + path, {
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-      },
-    })
-    const tasks = await response.json()
-
-    let quickPickItems = makeTaskQPIs(tasks)
-    const quickPick = window.createQuickPick()
-    quickPick.items = quickPickItems
-    quickPick.onDidChangeSelection(items => {
-      // @ts-ignore
-      const itemIds = items.map(item => item.id)
-      // @ts-ignore
-      quickPick.items.forEach((item: TaskQPI) => {
-        if (!itemIds.includes(item.id)) {
-          const completed = !item.completed
-          item.completed = completed
-          const requestVerb = completed ? `close` : `reopen`
-          fetch(HOST + `/tasks/${item.id}/${requestVerb}`, {
-            method: `POST`,
-            headers: {
-              Authorization: `Bearer ${apiToken}`,
-            },
-          })
-        }
-      })
-      quickPick.items = makeTaskQPIs(quickPickItems)
-    })
-    quickPick.onDidHide(() => quickPick.dispose())
-    quickPick.show()
+  const todoistTodosProject = commands.registerCommand(`extension.todoistTodosProject`, () => {
+    listTodos(`project`)
+  })
+  const todoistTodosGlobal = commands.registerCommand(`extension.todoistTodosGlobal`, () => {
+    listTodos(`global`)
   })
 
-  const todoistOpen = commands.registerCommand(`extension.todoistOpen`, async () => {
-    const apiToken = getApiToken()
-    if (!apiToken) {
-      return
-    }
-
-    const projectId = await getOrCreateProjectId(apiToken, `extension.todoistCapture`)
-    if (!projectId) {
-      return
-    }
-
-    env.openExternal(Uri.parse(`todoist://project?id=${projectId}`))
+  const todoistOpenProject = commands.registerCommand(`extension.todoistOpenProject`, () => {
+    openProject(`project`)
+  })
+  const todoistOpenGlobal = commands.registerCommand(`extension.todoistOpenGlobal`, () => {
+    openProject(`global`)
   })
 
-  context.subscriptions.push(todoistCapture)
-  context.subscriptions.push(todoistTodos)
-  context.subscriptions.push(todoistOpen)
+  context.subscriptions.push(todoistCaptureProject)
+  context.subscriptions.push(todoistCaptureGlobal)
+  context.subscriptions.push(todoistTodosProject)
+  context.subscriptions.push(todoistTodosGlobal)
+  context.subscriptions.push(todoistOpenProject)
+  context.subscriptions.push(todoistOpenGlobal)
 }
 
 export function deactivate() {

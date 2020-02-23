@@ -4,31 +4,47 @@ Track and sync your development todos with [Todoist](https://todoist.com), right
 
 ## Features & Usage
 
-![Animation]()
+Each command has a global user and workspace scoped version. Todoist "projects" are analagous to VSCode "workspaces".
 
-Todoist "projects" are scoped to VSCode "workspaces". If you are not within a workspace, the global value of `todoist.projectId` will be used.
-
-Whenever you invoke a command, if a Todoist project is not set for your workspace or globally, you will be prompted to choose or create a Todoist project.
+Whenever you invoke a command, if a Todoist project is not set for your workspace or globally, you will be prompted to choose or create a Todoist project for it.
 
 This VSCode extension adds several commands to the command palette:
 
-### Todoist Capture
+### Todoist Capture [Workspace]
 
 Default Keybinding <kbd>alt+t c</kbd>.
 
-Pop open an input box to capture a todo. If you have a text selection made when this is invoked, it will pre-populate the input field with a link to your current file and line number, for easy deep linking from the Todoist desktop app.
+Pop open an input box to capture a todo for your current project. If you have a text selection made when this is invoked, it will pre-populate the input field with a link to your current file and line number, for easy deep linking from the Todoist desktop app.
 
-### Todoist Todos
+### Todoist Todos [Workspace]
 
 Default Keybinding <kbd>alt+t t</kbd>.
 
 Shows all the incomplete todos in your current Todoist project. Selecting an item will toggle its completeness. Press <kbd>Esc</kbd> to dismiss the list.
 
-### Todoist Open
+### Todoist Open [Workspace]
 
 Default Keybinding <kbd>alt+t o</kbd>.
 
 If you have the Todoist desktop app installed, this will open or switch to the Todoist app and select your current project.
+
+### Todoist Capture [Global]
+
+Default Keybinding <kbd>alt+t C</kbd>.
+
+Pop open an input box to capture a todo for your global user project. If you have a text selection made when this is invoked, it will pre-populate the input field with a link to your current file and line number, for easy deep linking from the Todoist desktop app.
+
+### Todoist Todos [Global]
+
+Default Keybinding <kbd>alt+t T</kbd>.
+
+Shows all the incomplete todos in for your global user project. Selecting an item will toggle its completeness. Press <kbd>Esc</kbd> to dismiss the list.
+
+### Todoist Open [Global]
+
+Default Keybinding <kbd>alt+t O</kbd>.
+
+If you have the Todoist desktop app installed, this will open or switch to the Todoist app and select your global user project.
 
 ## Requirements & Installation
 
@@ -42,7 +58,7 @@ ext install waymondo.todoist
 
 Finally, set the `todoist.apiToken` setting to your Todoist API token which can be found [here](https://todoist.com/prefs/integrations).
 
-If you would like to set a global Todoist Project ID to capture all todos when not in a workspace, set `todoist.projectId` in your user settings as well.
+You may set `todoist.projectId` in your user and workspaces settings manually or with the commands above.
 
 ## Project Goals & Motivation
 
@@ -56,4 +72,4 @@ If you would like to set a global Todoist Project ID to capture all todos when n
 
 ## Known Issues
 
-I have not yet tested on any platforms other than macOS.
+I have not yet tested on any platforms other than macOS. Ideas for improvement and patches are welcome!

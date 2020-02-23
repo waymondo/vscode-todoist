@@ -1,7 +1,7 @@
 {
   "name": "todoist",
   "displayName": "todoist",
-  "description": "Use Todoist  for managing project-scoped todos",
+  "description": "Use Todoist for managing and syncing todos",
 	"version": "0.0.1",
 	"publisher": "waymondo",
   "engines": {
@@ -11,38 +11,65 @@
     "Other"
   ],
   "activationEvents": [
-		"onCommand:extension.todoistCapture",
-		"onCommand:extension.todoistOpen",
-		"onCommand:extension.todoistTodos"
+		"onCommand:extension.todoistCaptureProject",
+		"onCommand:extension.todoistOpenProject",
+    "onCommand:extension.todoistTodosProject",
+    "onCommand:extension.todoistCaptureGlobal",
+		"onCommand:extension.todoistOpenGlobal",
+		"onCommand:extension.todoistTodosGlobal"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "extension.todoistCapture",
-        "title": "Todoist Capture"
+        "command": "extension.todoistCaptureProject",
+        "title": "Todoist Capture [Project]"
 			},
 			{
-				"command": "extension.todoistOpen",
-				"title": "Todoist Open"
+				"command": "extension.todoistOpenProject",
+				"title": "Todoist Open [Project]"
 			},
 			{
-				"command": "extension.todoistTodos",
-				"title": "Todoist Todos"
+				"command": "extension.todoistTodosProject",
+				"title": "Todoist Todos [Project]"
+      },
+      {
+        "command": "extension.todoistCaptureGlobal",
+        "title": "Todoist Capture [Global]"
+			},
+			{
+				"command": "extension.todoistOpenGlobal",
+				"title": "Todoist Open [Global]"
+			},
+			{
+				"command": "extension.todoistTodosGlobal",
+				"title": "Todoist Todos [Global]"
 			}
     ],
     "keybindings": [
       {
-        "command": "extension.todoistCapture",
+        "command": "extension.todoistCaptureProject",
         "key": "alt+t c"
       },
       {
-        "command": "extension.todoistOpen",
+        "command": "extension.todoistOpenProject",
         "key": "alt+t o"
       },
       {
-        "command": "extension.todoistTodos",
+        "command": "extension.todoistTodosProject",
         "key": "alt+t t"
+      },
+      {
+        "command": "extension.todoistCaptureGlobal",
+        "key": "alt+t C"
+      },
+      {
+        "command": "extension.todoistOpenGlobal",
+        "key": "alt+t O"
+      },
+      {
+        "command": "extension.todoistTodosGlobal",
+        "key": "alt+t T"
       }
     ],
     "configuration": [
