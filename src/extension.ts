@@ -65,8 +65,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
     return null
   }
 
-  const config = workspace.getConfiguration()
-  let projectId = config.get(`todoist.projectId`)
+  let projectId = workspace.getConfiguration().get(`todoist.projectId`)
   if (projectId) {
     return typeof projectId === `string` ? parseInt(projectId) : (projectId as number)
   }
@@ -89,7 +88,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
     // @ts-ignore
     projectId = items[0].id
     if (projectId) {
-      await config.update(`todoist.projectId`, projectId, configTarget)
+      await workspace.getConfiguration().update(`todoist.projectId`, projectId, configTarget)
       commands.executeCommand(command)
     } else {
       const inputString = await window.showInputBox({ placeHolder: `Enter Todoist Project Name` })
@@ -107,7 +106,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
         },
       })
       const project = await response.json()
-      await config.update(`todoist.projectId`, project.id, configTarget)
+      await workspace.getConfiguration().update(`todoist.projectId`, project.id, configTarget)
       commands.executeCommand(command)
     }
     quickPick.dispose()

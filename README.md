@@ -2,6 +2,8 @@
 
 Track and sync your development todos with [Todoist](https://todoist.com), right in VSCode!
 
+![Animation Example](animation.gif)
+
 ## Features & Usage
 
 Each command has a global user and workspace scoped version. Todoist "projects" are analagous to VSCode "workspaces".
