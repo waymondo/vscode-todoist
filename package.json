@@ -2,10 +2,10 @@
   "name": "todoist",
   "displayName": "todoist",
   "description": "Use Todoist for managing and syncing todos",
-	"version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "waymondo",
   "repository": {
-    "type" : "git",
+    "type": "git",
     "url": "https://github.com/waymondo/vscode-todoist.git"
   },
   "engines": {
@@ -15,12 +15,12 @@
     "Other"
   ],
   "activationEvents": [
-		"onCommand:extension.todoistCaptureProject",
-		"onCommand:extension.todoistOpenProject",
+    "onCommand:extension.todoistCaptureProject",
+    "onCommand:extension.todoistOpenProject",
     "onCommand:extension.todoistTodosProject",
     "onCommand:extension.todoistCaptureGlobal",
-		"onCommand:extension.todoistOpenGlobal",
-		"onCommand:extension.todoistTodosGlobal"
+    "onCommand:extension.todoistOpenGlobal",
+    "onCommand:extension.todoistTodosGlobal"
   ],
   "main": "./out/extension.js",
   "icon": "todoist-icon.png",
@@ -30,27 +30,27 @@
       {
         "command": "extension.todoistCaptureProject",
         "title": "Todoist Capture [Project]"
-			},
-			{
-				"command": "extension.todoistOpenProject",
-				"title": "Todoist Open [Project]"
-			},
-			{
-				"command": "extension.todoistTodosProject",
-				"title": "Todoist Todos [Project]"
+      },
+      {
+        "command": "extension.todoistOpenProject",
+        "title": "Todoist Open [Project]"
+      },
+      {
+        "command": "extension.todoistTodosProject",
+        "title": "Todoist Todos [Project]"
       },
       {
         "command": "extension.todoistCaptureGlobal",
         "title": "Todoist Capture [Global]"
-			},
-			{
-				"command": "extension.todoistOpenGlobal",
-				"title": "Todoist Open [Global]"
-			},
-			{
-				"command": "extension.todoistTodosGlobal",
-				"title": "Todoist Todos [Global]"
-			}
+      },
+      {
+        "command": "extension.todoistOpenGlobal",
+        "title": "Todoist Open [Global]"
+      },
+      {
+        "command": "extension.todoistTodosGlobal",
+        "title": "Todoist Todos [Global]"
+      }
     ],
     "keybindings": [
       {
@@ -87,8 +87,8 @@
             "default": null,
             "description": "Your Todoist API Token",
             "scope": "application"
-					},
-					"todoist.projectId": {
+          },
+          "todoist.projectId": {
             "type": "string",
             "default": null,
             "description": "Your global or workspace-specific project ID",
