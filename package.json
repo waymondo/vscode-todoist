@@ -23,6 +23,8 @@
 		"onCommand:extension.todoistTodosGlobal"
   ],
   "main": "./out/extension.js",
+  "icon": "todoist-icon.png",
+  "license": "MIT",
   "contributes": {
     "commands": [
       {
