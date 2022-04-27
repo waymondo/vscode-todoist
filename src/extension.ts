@@ -6,14 +6,10 @@ import {
   Uri,
   env,
   ConfigurationTarget,
-  InputBoxOptions,
-  UriHandler,
-  Range,
-  Selection,
+  InputBoxOptions
 } from "vscode"
 import fetch from "node-fetch"
 
-const EXTENSION_ID = `waymondo.todoist`
 const HOST = `https://api.todoist.com/rest/v1`
 
 type Task = {
