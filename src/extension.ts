@@ -168,7 +168,7 @@ const captureTodo = async (scope: Scope) => {
     prompt: `Enter Todo`,
     valueSelection: [0, 0],
   }
-  if (activeSelection && !activeSelection.isEmpty) {
+  if (activeSelection && !activeSelection.isEmpty && env.appHost === "desktop") { // only use file url for desktop
     const fileName = window.activeTextEditor?.document.fileName
     const lineNumber = activeSelection.start.line
     inputBoxOptions.value = `\n ${env.uriScheme}://${EXTENSION_ID}/${fileName}#${lineNumber}`
