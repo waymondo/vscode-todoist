@@ -8,42 +8,11 @@ import {
   ConfigurationTarget,
   InputBoxOptions
 } from "vscode"
-import fetch from "node-fetch"
 
-const HOST = `https://api.todoist.com/rest/v1`
+import { TodoistApi, Task, AddTaskArgs } from "@doist/todoist-api-typescript"
+const TodoistClient = new TodoistApi("") // token will be set later
 
-type Task = {
-  id: number
-  project_id: number | null
-  section_id: number
-  order: number
-  content: string
-  completed: boolean
-  label_ids: number[]
-  priority: number
-  create: string
-  url: string
-}
-
-type Project = {
-  id: number
-  order: number
-  color: number
-  name: string
-  comment_count: number
-}
-
-type TaskQPI = Task & {
-  label: string
-  description: string | undefined
-  detail: string | undefined
-  picked: boolean
-}
-
-type TaskRequestBody = {
-  content: string
-  project_id?: number
-}
+type TaskQPI = Task & { label: string }
 
 type Scope = `project` | `global`
 
@@ -65,13 +34,11 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
   if (projectId) {
     return typeof projectId === `string` ? parseInt(projectId) : (projectId as number)
   }
-  const response = await fetch(HOST + `/projects`, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-  })
-  const projects = await response.json()
-  const projectQPIs = projects.map((project: Project) =>
+
+  TodoistClient.authToken = apiToken;
+  const projects = await TodoistClient.getProjects()
+
+  const projectQPIs = projects.map((project) =>
     Object.assign(project, {
       label: project.name,
     }),
@@ -79,6 +46,8 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
   const configTarget = scope === `project` ? ConfigurationTarget.Workspace : ConfigurationTarget.Global
   const quickPick = window.createQuickPick()
   quickPick.placeholder = `Choose a Todoist Project for this workspace`
+  
+  // @ts-ignore
   quickPick.items = projectQPIs.concat([{ label: `Create a new project` }])
   quickPick.onDidChangeSelection(async items => {
     // @ts-ignore
@@ -91,17 +60,9 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
       if (!inputString) {
         return
       }
-      const response = await fetch(HOST + `/projects`, {
-        method: `POST`,
-        body: JSON.stringify({
-          name: inputString,
-        }),
-        headers: {
-          "Content-Type": `application/json`,
-          Authorization: `Bearer ${apiToken}`,
-        },
-      })
-      const project = await response.json()
+
+      const project = await TodoistClient.addProject({name: inputString})
+
       await workspace.getConfiguration().update(`todoist.projectId`, project.id, configTarget)
       commands.executeCommand(command)
     }
@@ -119,7 +80,7 @@ const taskLabel = (task: Task) => {
   return `${statusBox} ${task.content}`
 }
 
-const makeTaskQPIs = (tasks: Array<Task | TaskQPI>) =>
+const makeTaskQPIs = (tasks: Array<Task | TaskQPI>): TaskQPI[] =>
   tasks.map(task => Object.assign(task, { label: taskLabel(task), picked: task.completed }))
 
 const captureTodo = async (scope: Scope) => {
@@ -148,21 +109,14 @@ const captureTodo = async (scope: Scope) => {
     return
   }
 
-  let body: TaskRequestBody = {
+  let body: AddTaskArgs = {
     content: activeSelection ? `${inputString} ` : inputString,
+    projectId,
   }
-  if (projectId) {
-    body.project_id = projectId
-  }
-  const response = await fetch(HOST + `/tasks`, {
-    method: `POST`,
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": `application/json`,
-      Authorization: `Bearer ${apiToken}`,
-    },
-  })
-  const task = await response.json()
+
+  TodoistClient.authToken = apiToken
+  const task = await TodoistClient.addTask(body)
+
   if (task.id) {
     window.showInformationMessage(`Task Created`)
   } else {
@@ -181,32 +135,22 @@ const listTodos = async (scope: Scope) => {
     return
   }
 
-  const path = projectId ? `/tasks?project_id=${projectId}` : `/tasks`
-  const response = await fetch(HOST + path, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-  })
-  const tasks = await response.json()
+  TodoistClient.authToken = apiToken
+  const tasks = await TodoistClient.getTasks({projectId})
 
   let quickPickItems = makeTaskQPIs(tasks)
-  const quickPick = window.createQuickPick()
+  const quickPick = window.createQuickPick<TaskQPI>()
   quickPick.items = quickPickItems
   quickPick.onDidChangeSelection(items => {
-    // @ts-ignore
     const itemIds = items.map(item => item.id)
-    // @ts-ignore
+
     quickPick.items.forEach((item: TaskQPI) => {
-      if (!itemIds.includes(item.id)) {
+      if (itemIds.includes(item.id)) {
         const completed = !item.completed
         item.completed = completed
-        const requestVerb = completed ? `close` : `reopen`
-        fetch(HOST + `/tasks/${item.id}/${requestVerb}`, {
-          method: `POST`,
-          headers: {
-            Authorization: `Bearer ${apiToken}`,
-          },
-        })
+        completed
+          ? TodoistClient.closeTask(item.id)
+          : TodoistClient.reopenTask(item.id)
       }
     })
     quickPick.items = makeTaskQPIs(quickPickItems)
