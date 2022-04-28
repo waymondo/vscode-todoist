@@ -6,14 +6,10 @@ import {
   Uri,
   env,
   ConfigurationTarget,
-  InputBoxOptions,
-  UriHandler,
-  Range,
-  Selection,
+  InputBoxOptions
 } from "vscode"
 import fetch from "node-fetch"
 
-const EXTENSION_ID = `waymondo.todoist`
 const HOST = `https://api.todoist.com/rest/v1`
 
 type Task = {
@@ -126,32 +122,6 @@ const taskLabel = (task: Task) => {
 const makeTaskQPIs = (tasks: Array<Task | TaskQPI>) =>
   tasks.map(task => Object.assign(task, { label: taskLabel(task), picked: task.completed }))
 
-const uriHandler: UriHandler = {
-  handleUri: async (uri: Uri) => {
-    const { path, fragment } = uri
-    let [startLine, endLine] = fragment?.split(`-`).map(number => number && parseInt(number))
-    const goToRange = !!startLine
-    if (!startLine) {
-      startLine = 1
-    }
-    if (!endLine) {
-      endLine = startLine
-    }
-    const textDocument = await workspace.openTextDocument(path)
-
-    await window.showTextDocument(textDocument)
-    const range = new Range(startLine - 1, 0, endLine - 1, 0)
-    const editor = window.activeTextEditor
-    if (!editor) {
-      return
-    }
-    if (goToRange) {
-      editor.selection = new Selection(range.start, range.end)
-      editor.revealRange(range)
-    }
-  },
-}
-
 const captureTodo = async (scope: Scope) => {
   const apiToken = getApiToken()
   if (!apiToken) {
@@ -170,8 +140,8 @@ const captureTodo = async (scope: Scope) => {
   }
   if (activeSelection && !activeSelection.isEmpty && env.appHost === "desktop") { // only use file url for desktop
     const fileName = window.activeTextEditor?.document.fileName
-    const lineNumber = activeSelection.start.line
-    inputBoxOptions.value = `\n ${env.uriScheme}://${EXTENSION_ID}/${fileName}#${lineNumber}`
+    const lineNumber = activeSelection.start.line + 1 // zero-based
+    inputBoxOptions.value = `\n ${env.uriScheme}://file/${fileName}:${lineNumber}`
   }
   const inputString = await window.showInputBox(inputBoxOptions)
   if (!inputString) {
@@ -260,8 +230,6 @@ const openProject = async (scope: Scope) => {
 }
 
 export function activate(context: ExtensionContext) {
-  window.registerUriHandler(uriHandler)
-
   const todoistCaptureProject = commands.registerCommand(`extension.todoistCaptureProject`, () => {
     captureTodo(`project`)
   })
