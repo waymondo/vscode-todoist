@@ -15,8 +15,13 @@ jobs:
       - run: yarn install
       - run: yarn vscode:prepublish
       - name: Publish to Visual Studio Marketplace
-        uses: HaaLeo/publish-vscode-extension@v1
+        #  uses: HaaLeo/publish-vscode-extension@v1
+        #  with:
+        #    pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
+        #    registryUrl: https://marketplace.visualstudio.com
+        #    yarn: true
+        uses: lannonbr/vsce-action@3.0.0
         with:
-          pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
-          registryUrl: https://marketplace.visualstudio.com
-          yarn: true
+          args: "publish -p $VSCE_TOKEN"
+        env:
+          VSCE_TOKEN: ${{ secrets.VS_MARKETPLACE_TOKEN }}
