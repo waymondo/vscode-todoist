@@ -1,136 +1,158 @@
 {
-  "name": "todoist",
-  "displayName": "todoist",
-  "description": "Use Todoist for managing and syncing todos",
-  "version": "0.2.0",
-  "publisher": "waymondo",
-  "browser": "./out/browser.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/waymondo/vscode-todoist.git"
-  },
-  "engines": {
-    "vscode": "^1.66.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onCommand:extension.todoistCaptureProject",
-    "onCommand:extension.todoistOpenProject",
-    "onCommand:extension.todoistTodosProject",
-    "onCommand:extension.todoistCaptureGlobal",
-    "onCommand:extension.todoistOpenGlobal",
-    "onCommand:extension.todoistTodosGlobal"
-  ],
-  "main": "./out/extension.js",
-  "icon": "todoist-icon.png",
-  "license": "MIT",
-  "contributes": {
-    "commands": [
-      {
-        "command": "extension.todoistCaptureProject",
-        "title": "Todoist Capture [Project]"
-      },
-      {
-        "command": "extension.todoistOpenProject",
-        "title": "Todoist Open [Project]"
-      },
-      {
-        "command": "extension.todoistTodosProject",
-        "title": "Todoist Todos [Project]"
-      },
-      {
-        "command": "extension.todoistCaptureGlobal",
-        "title": "Todoist Capture [Global]"
-      },
-      {
-        "command": "extension.todoistOpenGlobal",
-        "title": "Todoist Open [Global]"
-      },
-      {
-        "command": "extension.todoistTodosGlobal",
-        "title": "Todoist Todos [Global]"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "extension.todoistCaptureProject",
-        "key": "alt+t c"
-      },
-      {
-        "command": "extension.todoistOpenProject",
-        "key": "alt+t o"
-      },
-      {
-        "command": "extension.todoistTodosProject",
-        "key": "alt+t t"
-      },
-      {
-        "command": "extension.todoistCaptureGlobal",
-        "key": "alt+t C"
-      },
-      {
-        "command": "extension.todoistOpenGlobal",
-        "key": "alt+t O"
-      },
-      {
-        "command": "extension.todoistTodosGlobal",
-        "key": "alt+t T"
-      }
-    ],
-    "configuration": [
-      {
-        "title": "Todoist",
-        "properties": {
-          "todoist.apiToken": {
-            "type": "string",
-            "default": null,
-            "description": "Your Todoist API Token",
-            "scope": "application"
-          },
-          "todoist.projectId": {
-            "type": [
-              "string",
-              "number"
-            ],
-            "default": null,
-            "description": "Your global or workspace-specific project ID",
-            "scope": "window"
-          }
-        }
-      }
-    ]
-  },
-  "scripts": {
-    "build:web": "esbuild src/extension.ts --bundle --outfile=out/browser.js --minify --external:vscode --format=cjs",
-    "open-in-browser": "yarn run build:web && vscode-test-web --extensionDevelopmentPath=. .",
-    "vscode:prepublish": "yarn run compile",
-    "compile": "tsc -p ./ && yarn build:web",
-    "lint": "eslint src --ext ts",
-    "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile && yarn run lint",
-    "test": "node ./out/test/runTest.js"
-  },
-  "devDependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/mocha": "^7.0.1",
-    "@types/node": "^12.11.7",
-    "@types/vscode": "1.66.0",
-    "@typescript-eslint/eslint-plugin": "^2.18.0",
-    "@typescript-eslint/parser": "^2.18.0",
-    "@vscode/test-web": "*",
-    "esbuild": "^0.14.38",
-    "eslint": "^6.8.0",
-    "glob": "^7.1.6",
-    "mocha": "^7.1.1",
-    "typescript": "^3.7.5",
-    "vscode-test": "^1.3.0"
-  },
-  "resolutions": {
-    "minimist": "^1.2.5"
-  },
-  "dependencies": {
-    "@doist/todoist-api-typescript": "1.5.0"
-  }
+	"name": "todoist",
+	"displayName": "todoist",
+	"description": "Use Todoist for managing and syncing todos",
+	"version": "0.2.0",
+	"publisher": "waymondo + mkarrmann",
+	"browser": "./out/browser.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mkarrmann/vscode-todoist.git"
+	},
+	"engines": {
+		"vscode": "^1.66.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:extension.todoistCaptureProject",
+		"onCommand:extension.todoistOpenProject",
+		"onCommand:extension.todoistTodosProject",
+		"onCommand:extension.todoistCaptureGlobal",
+		"onCommand:extension.todoistOpenGlobal",
+		"onCommand:extension.todoistTodosGlobal",
+		"onCommand:extension.todoistCaptureId",
+		"onCommand:extension.todoistOpenId",
+		"onCommand:extension.todoistTodosId"
+	],
+	"main": "./out/extension.js",
+	"icon": "todoist-icon.png",
+	"license": "MIT",
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.todoistCaptureProject",
+				"title": "Todoist Capture [Project]"
+			},
+			{
+				"command": "extension.todoistOpenProject",
+				"title": "Todoist Open [Project]"
+			},
+			{
+				"command": "extension.todoistTodosProject",
+				"title": "Todoist Todos [Project]"
+			},
+			{
+				"command": "extension.todoistCaptureGlobal",
+				"title": "Todoist Capture [Global]"
+			},
+			{
+				"command": "extension.todoistOpenGlobal",
+				"title": "Todoist Open [Global]"
+			},
+			{
+				"command": "extension.todoistTodosGlobal",
+				"title": "Todoist Todos [Global]"
+			},
+			{
+				"command": "extension.todoistCaptureId",
+				"title": "Todoist Capture [Id]"
+			},
+			{
+				"command": "extension.todoistOpenId",
+				"title": "Todoist Open [Id]"
+			},
+			{
+				"command": "extension.todoistTodosId",
+				"title": "Todoist Todos [Id]"
+			}
+		],
+		"keybindings": [
+			{
+				"command": "extension.todoistCaptureProject",
+				"key": "alt+t c"
+			},
+			{
+				"command": "extension.todoistOpenProject",
+				"key": "alt+t o"
+			},
+			{
+				"command": "extension.todoistTodosProject",
+				"key": "alt+t t"
+			},
+			{
+				"command": "extension.todoistCaptureGlobal",
+				"key": "alt+t C"
+			},
+			{
+				"command": "extension.todoistOpenGlobal",
+				"key": "alt+t O"
+			},
+			{
+				"command": "extension.todoistTodosGlobal",
+				"key": "alt+t T"
+			}
+		],
+		"configuration": [
+			{
+				"title": "Todoist",
+				"properties": {
+					"todoist.apiToken": {
+						"type": "string",
+						"default": null,
+						"description": "Your Todoist API Token",
+						"scope": "application"
+					},
+					"todoist.projectId": {
+						"type": [
+							"string",
+							"number"
+						],
+						"default": null,
+						"description": "Your global or workspace-specific project ID",
+						"scope": "window"
+					}
+				}
+			}
+		]
+	},
+	"scripts": {
+		"build:web": "esbuild src/extension.ts --bundle --outfile=out/browser.js --minify --external:vscode --format=cjs",
+		"open-in-browser": "yarn run build:web && vscode-test-web --extensionDevelopmentPath=. .",
+		"vscode:prepublish": "yarn run compile",
+		"compile": "tsc -p ./ && yarn build:web",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "yarn run compile && yarn run lint",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.1",
+		"@types/mocha": "^7.0.1",
+		"@types/node": "^12.11.7",
+		"@types/vscode": "1.66.0",
+		"@typescript-eslint/eslint-plugin": "^2.18.0",
+		"@typescript-eslint/parser": "^2.18.0",
+		"@vscode/test-web": "*",
+		"esbuild": "^0.14.38",
+		"eslint": "^6.8.0",
+		"glob": "^7.1.6",
+		"mocha": "^7.1.1",
+		"typescript": "^3.7.5",
+		"vscode-test": "^1.3.0"
+	},
+	"resolutions": {
+		"minimist": "^1.2.5"
+	},
+	"dependencies": {
+		"@doist/todoist-api-typescript": "1.5.0",
+		"axios": "^0.27.2",
+		"axios-case-converter": "^0.9.0",
+		"axios-retry": "^3.3.1",
+		"vsce": "^2.11.0"
+	},
+	"__metadata": {
+		"installedTimestamp": 1663522061354
+	}
 }
