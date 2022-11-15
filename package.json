@@ -146,6 +146,6 @@
     "minimist": "^1.2.5"
   },
   "dependencies": {
-    "@doist/todoist-api-typescript": "1.5.0",
+    "@doist/todoist-api-typescript": "1.5.0"
   }
 }
