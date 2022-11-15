@@ -7,7 +7,7 @@
   "browser": "./out/browser.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mkarrmann/vscode-todoist.git"
+    "url": "https://github.com/waymondo/vscode-todoist.git"
   },
   "engines": {
     "vscode": "^1.66.0"
