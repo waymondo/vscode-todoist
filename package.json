@@ -21,7 +21,10 @@
     "onCommand:extension.todoistTodosProject",
     "onCommand:extension.todoistCaptureGlobal",
     "onCommand:extension.todoistOpenGlobal",
-    "onCommand:extension.todoistTodosGlobal"
+    "onCommand:extension.todoistTodosGlobal",
+    "onCommand:extension.todoistCaptureId",
+    "onCommand:extension.todoistOpenId",
+    "onCommand:extension.todoistTodosId"
   ],
   "main": "./out/extension.js",
   "icon": "todoist-icon.png",
@@ -51,6 +54,18 @@
       {
         "command": "extension.todoistTodosGlobal",
         "title": "Todoist Todos [Global]"
+      },
+      {
+        "command": "extension.todoistCaptureId",
+        "title": "Todoist Capture [Id]"
+      },
+      {
+        "command": "extension.todoistOpenId",
+        "title": "Todoist Open [Id]"
+      },
+      {
+        "command": "extension.todoistTodosId",
+        "title": "Todoist Todos [Id]"
       }
     ],
     "keybindings": [

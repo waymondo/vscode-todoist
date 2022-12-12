@@ -6,9 +6,7 @@ Track and sync your development todos with [Todoist](https://todoist.com), right
 
 ## Features & Usage
 
-Each command has a global user and workspace scoped version. Todoist "projects" are analagous to VSCode "workspaces".
-
-Whenever you invoke a command, if a Todoist project is not set for your workspace or globally, you will be prompted to choose or create a Todoist project for it.
+Each command has a global user, workspace, and parameterized version. Both the global user and workspace commands will use the Todoist project set in your `todoist.projectId` setting; if this is not set, then you will be prompted to choose or create a Todoist project. Parameterized commands, on the other hand, take the Todoist project as a parameter. Note that parameterized commands do not have a default keybinding, and instead require you to configure your own keybindings for them.
 
 This VSCode extension adds several commands to the command palette:
 
@@ -47,6 +45,24 @@ Shows all the incomplete todos in for your global user project. Selecting an ite
 Default Keybinding <kbd>alt+t O</kbd>.
 
 If you have the Todoist desktop app installed, this will open or switch to the Todoist app and select your global user project.
+
+### Todoist Capture [Id]
+
+No default keybinding.
+
+Pop open an input box to capture a todo for the chosen Todoist project. If you have a text selection made when this is invoked, it will pre-populate the input field with a link to your current file and line number, for easy deep linking from the Todoist desktop app.
+
+### Todoist Todos [Id]
+
+No default keybinding.
+
+Shows all the incomplete todos in the chosen Todoist project. Selecting an item will toggle its completeness. Press <kbd>Esc</kbd> to dismiss the list.
+
+### Todoist Open [Id]
+
+No default keybinding.
+
+If you have the Todoist desktop app installed, this will open or switch to the Todoist app and select your chosen project.
 
 ## Requirements & Installation
 
