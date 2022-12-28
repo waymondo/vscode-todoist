@@ -9,10 +9,11 @@ import {
   InputBoxOptions
 } from "vscode"
 
-import { TodoistApi, Task, AddTaskArgs } from "@doist/todoist-api-typescript"
+import { TodoistApi, Task, Project, AddTaskArgs } from "@doist/todoist-api-typescript"
 const TodoistClient = new TodoistApi("") // token will be set later
 
 type TaskQPI = Task & { label: string }
+type ProjectQPI = Project & { label: string }
 
 type Scope = `project` | `global` | null
 
@@ -24,7 +25,7 @@ const getApiToken = function() {
   return apiToken
 }
 
-const getOrCreateProjectId = async function(apiToken: string, command: string, scope: Scope): Promise<number | null> {
+async function getOrCreateProjectId(apiToken: string, command: string, scope: Scope) {
   if (scope === `project` && !workspace.workspaceFolders) {
     window.showWarningMessage(`Not within a workspace`)
     return null
@@ -32,7 +33,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
 
   let projectId = workspace.getConfiguration().get(`todoist.projectId`)
   if (projectId) {
-    return typeof projectId === `string` ? parseInt(projectId) : (projectId as number)
+    return typeof projectId === "number" ? String(projectId) : (projectId as string)
   }
 
   TodoistClient.authToken = apiToken
@@ -44,13 +45,11 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
     }),
   )
   const configTarget = scope === `project` ? ConfigurationTarget.Workspace : ConfigurationTarget.Global
-  const quickPick = window.createQuickPick()
+  const quickPick = window.createQuickPick<ProjectQPI | { label: string, id: null } >()
   quickPick.placeholder = `Choose a Todoist Project for this workspace`
 
-  // @ts-ignore
-  quickPick.items = projectQPIs.concat([{ label: `Create a new project` }])
+  quickPick.items = [...projectQPIs, { label: `Create a new project`, id: null }]
   quickPick.onDidChangeSelection(async items => {
-    // @ts-ignore
     projectId = items[0].id
     if (projectId) {
       await workspace.getConfiguration().update(`todoist.projectId`, projectId, configTarget)
@@ -61,7 +60,7 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
         return
       }
 
-      const project = await TodoistClient.addProject({name: inputString})
+      const project = await TodoistClient.addProject({ name: inputString })
 
       await workspace.getConfiguration().update(`todoist.projectId`, project.id, configTarget)
       commands.executeCommand(command)
@@ -74,24 +73,23 @@ const getOrCreateProjectId = async function(apiToken: string, command: string, s
 }
 
 const taskLabel = (task: Task) => {
-  const statusBox = task.completed
-    ? String.fromCodePoint(parseInt(`2705`, 16))
-    : String.fromCodePoint(parseInt(`1F7E9`, 16))
+  const statusBox = task.isCompleted ? "✅" : "🟩"
   return `${statusBox} ${task.content}`
 }
 
 const makeTaskQPIs = (tasks: Array<Task | TaskQPI>): TaskQPI[] =>
-  tasks.map(task => Object.assign(task, { label: taskLabel(task), picked: task.completed }))
+  tasks.map(task => Object.assign(task, { label: taskLabel(task), picked: task.isCompleted }))
 
-const captureTodo = async (scope: Scope = null, nullableProjectId: number | null = null) => {
+const captureTodo = async (scope: Scope = null, customProjectId?: string) => {
   const apiToken = getApiToken()
   if (!apiToken) {
     return
   }
 
-  const projectId =  nullableProjectId == null ?
-  	await getOrCreateProjectId(apiToken, `extension.todoistList`, scope) :
-	  nullableProjectId
+  const projectId = customProjectId
+    ? customProjectId
+    : await getOrCreateProjectId(apiToken, `extension.todoistList`, scope)
+
   if (!projectId) {
     return
   }
@@ -126,21 +124,22 @@ const captureTodo = async (scope: Scope = null, nullableProjectId: number | null
   }
 }
 
-const listTodos = async (scope: Scope = null, nullableProjectId: number | null = null) => {
+const listTodos = async (scope: Scope = null, customProjectId?: string) => {
   const apiToken = getApiToken()
   if (!apiToken) {
     return
   }
 
-  const projectId =  nullableProjectId == null ?
-  	await getOrCreateProjectId(apiToken, `extension.todoistList`, scope) :
-	  nullableProjectId
+  const projectId =  customProjectId
+    ? customProjectId
+  	: await getOrCreateProjectId(apiToken, `extension.todoistList`, scope)
+
   if (!projectId) {
     return
   }
 
   TodoistClient.authToken = apiToken
-  const tasks = await TodoistClient.getTasks({projectId})
+  const tasks = await TodoistClient.getTasks({ projectId })
 
   let quickPickItems = makeTaskQPIs(tasks)
   const quickPick = window.createQuickPick<TaskQPI>()
@@ -150,8 +149,8 @@ const listTodos = async (scope: Scope = null, nullableProjectId: number | null =
 
     quickPick.items.forEach((item: TaskQPI) => {
       if (itemIds.includes(item.id)) {
-        const completed = !item.completed
-        item.completed = completed
+        const completed = !item.isCompleted
+        item.isCompleted = completed
         completed
           ? TodoistClient.closeTask(item.id)
           : TodoistClient.reopenTask(item.id)
@@ -163,15 +162,16 @@ const listTodos = async (scope: Scope = null, nullableProjectId: number | null =
   quickPick.show()
 }
 
-const openProject = async (scope: Scope, nullableProjectId: number | null = null) => {
+const openProject = async (scope: Scope, customProjectId?: string) => {
   const apiToken = getApiToken()
   if (!apiToken) {
     return
   }
 
-  const projectId =  nullableProjectId == null ?
-  	await getOrCreateProjectId(apiToken, `extension.todoistList`, scope) :
-	  nullableProjectId
+  const projectId =  customProjectId
+    ? customProjectId
+    : await getOrCreateProjectId(apiToken, `extension.todoistList`, scope)
+
   if (!projectId) {
     return
   }
@@ -181,32 +181,32 @@ const openProject = async (scope: Scope, nullableProjectId: number | null = null
 
 export function activate(context: ExtensionContext) {
   const todoistCaptureProject = commands.registerCommand(`extension.todoistCaptureProject`, () => {
-    captureTodo(`project`, null)
+    captureTodo(`project`)
   })
   const todoistCaptureGlobal = commands.registerCommand(`extension.todoistCaptureGlobal`, () => {
-    captureTodo(`global`, null)
+    captureTodo(`global`)
   })
-  const todoistCaptureId = commands.registerCommand(`extension.todoistCaptureId`, (projectId: number) => {
+  const todoistCaptureId = commands.registerCommand(`extension.todoistCaptureId`, (projectId: string) => {
 	  captureTodo(null, projectId)
   })
 
   const todoistTodosProject = commands.registerCommand(`extension.todoistTodosProject`, () => {
-    listTodos(`project`, null)
+    listTodos(`project`)
   })
   const todoistTodosGlobal = commands.registerCommand(`extension.todoistTodosGlobal`, () => {
-    listTodos(`global`, null)
+    listTodos(`global`)
   })
-  const todoistTodosId = commands.registerCommand(`extension.todoistTodosId`, (projectId: number) => {
+  const todoistTodosId = commands.registerCommand(`extension.todoistTodosId`, (projectId: string) => {
 	  listTodos(null, projectId)
   })
 
   const todoistOpenProject = commands.registerCommand(`extension.todoistOpenProject`, () => {
-    openProject(`project`, null)
+    openProject(`project`)
   })
   const todoistOpenGlobal = commands.registerCommand(`extension.todoistOpenGlobal`, () => {
-    openProject(`global`, null)
+    openProject(`global`)
   })
-  const tododistOpenId = commands.registerCommand(`extension.todoistOpenId`, (projectId: number) => {
+  const tododistOpenId = commands.registerCommand(`extension.todoistOpenId`, (projectId: string) => {
     openProject(null, projectId)
   })
 
