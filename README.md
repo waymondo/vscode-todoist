@@ -64,13 +64,33 @@ No default keybinding.
 
 If you have the Todoist desktop app installed, this will open or switch to the Todoist app and select your chosen project.
 
+## Configuring Custom Project Shortcuts
+
+You can configure multiple shortcuts to help you open, list, and capture todos for your Todoist projects. To do this, you will need to add a keybinding for each shortcut you want to use. For example, to add a shortcut for a project with the id `123456789`, you would add the following to your `keybindings.json` file:
+
+```json
+{
+  "key": "ctrl+c+1",
+  "command": "extension.todoistCaptureId",
+  "args": "123456789" // here goes the project id
+}
+```
+
+The commands you can use are:
+
+* `extension.todoistCaptureId`
+* `extension.todoistTodosId`
+* `extension.todoistOpenId`
+
+For more information on how to configure keybindings, see the [VSCode documentation](https://code.visualstudio.com/docs/getstarted/keybindings).
+
 ## Requirements & Installation
 
 Obviously this requires a [Todoist](https://todoist.com) account. To use "Todoist Open" and take advantage of the deep linking feature, you will also need the Todoist desktop app.
 
 To install this extension, open the command palette and enter:
 
-```
+```sh
 ext install waymondo.todoist
 ```
 
