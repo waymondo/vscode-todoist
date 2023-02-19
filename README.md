@@ -88,13 +88,14 @@ For more information on how to configure keybindings, see the [VSCode documentat
 
 Obviously this requires a [Todoist](https://todoist.com) account. To use "Todoist Open" and take advantage of the deep linking feature, you will also need the Todoist desktop app.
 
-To install this extension, open the command palette and enter:
+To install this extension, you can get it from VSCode store or open the command palette and enter:
 
 ```sh
 ext install waymondo.todoist
 ```
 
-Finally, set the `todoist.apiToken` setting to your Todoist API token which can be found [here](https://todoist.com/prefs/integrations).
+Finally, run any extension command from the command palette and you will be prompted to enter your Todoist API token,
+which can be found [here](https://todoist.com/prefs/integrations).
 
 You may set `todoist.projectId` in your user and workspaces settings manually or with the commands above.
 
