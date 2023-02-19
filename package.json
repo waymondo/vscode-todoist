@@ -98,12 +98,6 @@
       {
         "title": "Todoist",
         "properties": {
-          "todoist.apiToken": {
-            "type": "string",
-            "default": null,
-            "description": "Your Todoist API Token",
-            "scope": "application"
-          },
           "todoist.projectId": {
             "type": [
               "string",
