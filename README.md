@@ -71,16 +71,16 @@ You can configure multiple shortcuts to help you open, list, and capture todos f
 ```json
 {
   "key": "ctrl+c+1",
-  "command": "todoistCaptureId",
+  "command": "extension.todoistCaptureId",
   "args": "123456789" // here goes the project id
 }
 ```
 
 The commands you can use are:
 
-* `todoistCaptureId`
-* `todoistTodosId`
-* `todoistOpenId`
+* `extension.todoistCaptureId`
+* `extension.todoistTodosId`
+* `extension.todoistOpenId`
 
 For more information on how to configure keybindings, see the [VSCode documentation](https://code.visualstudio.com/docs/getstarted/keybindings).
 

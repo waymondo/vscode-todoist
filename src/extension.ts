@@ -193,17 +193,17 @@ const openProject = async ({ scope = null, customProjectId, context }: CommandOp
 }
 
 const getCommandHandlers = (context: ExtensionContext) => ({
-  "todoistCaptureProject": () => captureTodo({ scope: "project", context }),
-  "todoistCaptureGlobal": () => captureTodo({ scope: "global", context }),
-  "todoistCaptureId": (projectId: string) => captureTodo({ customProjectId: projectId, context }),
+  "extension.todoistCaptureProject": () => captureTodo({ scope: "project", context }),
+  "extension.todoistCaptureGlobal": () => captureTodo({ scope: "global", context }),
+  "extension.todoistCaptureId": (projectId: string) => captureTodo({ customProjectId: projectId, context }),
 
-  "todoistTodosProject": () => listTodos({scope: "project", context }),
-  "todoistTodosGlobal": () => listTodos({scope: "global", context}),
-  "todoistTodosId": (projectId: string) => listTodos({ customProjectId: projectId, context }),
+  "extension.todoistTodosProject": () => listTodos({scope: "project", context }),
+  "extension.todoistTodosGlobal": () => listTodos({scope: "global", context}),
+  "extension.todoistTodosId": (projectId: string) => listTodos({ customProjectId: projectId, context }),
 
-  "todoistOpenProject": () => openProject({ scope: "project", context }),
-  "todoistOpenGlobal": () => openProject({scope: "global", context}),
-  "todoistOpenId": (projectId: string) => openProject({ customProjectId: projectId, context}),
+  "extension.todoistOpenProject": () => openProject({ scope: "project", context }),
+  "extension.todoistOpenGlobal": () => openProject({scope: "global", context}),
+  "extension.todoistOpenId": (projectId: string) => openProject({ customProjectId: projectId, context}),
 })
 
 export function activate(context: ExtensionContext) {
