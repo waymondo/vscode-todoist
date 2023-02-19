@@ -16,15 +16,15 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.todoistCaptureProject",
-    "onCommand:extension.todoistOpenProject",
-    "onCommand:extension.todoistTodosProject",
-    "onCommand:extension.todoistCaptureGlobal",
-    "onCommand:extension.todoistOpenGlobal",
-    "onCommand:extension.todoistTodosGlobal",
-    "onCommand:extension.todoistCaptureId",
-    "onCommand:extension.todoistOpenId",
-    "onCommand:extension.todoistTodosId"
+    "onCommand:todoistCaptureProject",
+    "onCommand:todoistOpenProject",
+    "onCommand:todoistTodosProject",
+    "onCommand:todoistCaptureGlobal",
+    "onCommand:todoistOpenGlobal",
+    "onCommand:todoistTodosGlobal",
+    "onCommand:todoistCaptureId",
+    "onCommand:todoistOpenId",
+    "onCommand:todoistTodosId"
   ],
   "main": "./out/extension.js",
   "icon": "todoist-icon.png",
@@ -32,65 +32,65 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.todoistCaptureProject",
+        "command": "todoistCaptureProject",
         "title": "Todoist Capture [Project]"
       },
       {
-        "command": "extension.todoistOpenProject",
+        "command": "todoistOpenProject",
         "title": "Todoist Open [Project]"
       },
       {
-        "command": "extension.todoistTodosProject",
+        "command": "todoistTodosProject",
         "title": "Todoist Todos [Project]"
       },
       {
-        "command": "extension.todoistCaptureGlobal",
+        "command": "todoistCaptureGlobal",
         "title": "Todoist Capture [Global]"
       },
       {
-        "command": "extension.todoistOpenGlobal",
+        "command": "todoistOpenGlobal",
         "title": "Todoist Open [Global]"
       },
       {
-        "command": "extension.todoistTodosGlobal",
+        "command": "todoistTodosGlobal",
         "title": "Todoist Todos [Global]"
       },
       {
-        "command": "extension.todoistCaptureId",
+        "command": "todoistCaptureId",
         "title": "Todoist Capture [Id]"
       },
       {
-        "command": "extension.todoistOpenId",
+        "command": "todoistOpenId",
         "title": "Todoist Open [Id]"
       },
       {
-        "command": "extension.todoistTodosId",
+        "command": "todoistTodosId",
         "title": "Todoist Todos [Id]"
       }
     ],
     "keybindings": [
       {
-        "command": "extension.todoistCaptureProject",
+        "command": "todoistCaptureProject",
         "key": "alt+t c"
       },
       {
-        "command": "extension.todoistOpenProject",
+        "command": "todoistOpenProject",
         "key": "alt+t o"
       },
       {
-        "command": "extension.todoistTodosProject",
+        "command": "todoistTodosProject",
         "key": "alt+t t"
       },
       {
-        "command": "extension.todoistCaptureGlobal",
+        "command": "todoistCaptureGlobal",
         "key": "alt+t C"
       },
       {
-        "command": "extension.todoistOpenGlobal",
+        "command": "todoistOpenGlobal",
         "key": "alt+t O"
       },
       {
-        "command": "extension.todoistTodosGlobal",
+        "command": "todoistTodosGlobal",
         "key": "alt+t T"
       }
     ],
