@@ -30,7 +30,7 @@ const getApiToken = async (context: ExtensionContext) => {
     return null
   }
   context.secrets.store(`todoistApiToken`, newApiToken)
-  
+
   return newApiToken
 }
 
@@ -54,7 +54,7 @@ const getOrCreateProjectId = async ({ apiToken, scope }: { apiToken: string, sco
     }),
   )
   const configTarget = scope === `project` ? ConfigurationTarget.Workspace : ConfigurationTarget.Global
-  const quickPick = window.createQuickPick<ProjectQPI | { label: string, id: null } >()
+  const quickPick = window.createQuickPick<ProjectQPI | { label: string, id: null }>()
   quickPick.placeholder = `Choose a Todoist Project for this workspace`
 
   quickPick.items = [...projectQPIs, { label: `Create a new project`, id: null }]
@@ -115,7 +115,7 @@ const captureTodo = async ({ scope = null, customProjectId, context }: CommandOp
   if (activeSelection && !activeSelection.isEmpty && env.appHost === "desktop") { // only use file url for desktop
     const fileName = window.activeTextEditor?.document.fileName
     const lineNumber = activeSelection.start.line + 1 // zero-based
-    inputBoxOptions.value = `\n ${env.uriScheme}://file/${fileName}:${lineNumber}`
+    inputBoxOptions.value = ` - [🔗 Go to File](${env.uriScheme}://file/${fileName}:${lineNumber})`
   }
   const inputString = await window.showInputBox(inputBoxOptions)
   if (!inputString) {
@@ -128,12 +128,18 @@ const captureTodo = async ({ scope = null, customProjectId, context }: CommandOp
   }
 
   TodoistClient.authToken = apiToken
-  const task = await TodoistClient.addTask(body)
 
-  if (task.id) {
-    window.showInformationMessage(`Task Created`)
-  } else {
-    window.showWarningMessage(`There was an error`)
+  const task = await TodoistClient.addTask(body).catch(() => null)
+
+  if (!task) {
+    return window.showWarningMessage(`There was an error creating the task`)
+  }
+
+  const actionMessage = `Open in Todoist`
+  const userResponse = await window.showInformationMessage(`Task Created`, actionMessage)
+
+  if (userResponse === actionMessage) {
+    env.openExternal(Uri.parse(`todoist://project?id=${task.projectId}`))
   }
 }
 
@@ -143,9 +149,9 @@ const listTodos = async ({ scope = null, customProjectId, context }: CommandOpti
     return
   }
 
-  const projectId =  customProjectId
+  const projectId = customProjectId
     ? customProjectId
-  	: await getOrCreateProjectId({ apiToken, scope })
+    : await getOrCreateProjectId({ apiToken, scope })
 
   if (!projectId) {
     return
@@ -181,7 +187,7 @@ const openProject = async ({ scope = null, customProjectId, context }: CommandOp
     return
   }
 
-  const projectId =  customProjectId
+  const projectId = customProjectId
     ? customProjectId
     : await getOrCreateProjectId({ apiToken, scope })
 
@@ -197,13 +203,13 @@ const getCommandHandlers = (context: ExtensionContext) => ({
   "extension.todoistCaptureGlobal": () => captureTodo({ scope: "global", context }),
   "extension.todoistCaptureId": (projectId: string) => captureTodo({ customProjectId: projectId, context }),
 
-  "extension.todoistTodosProject": () => listTodos({scope: "project", context }),
-  "extension.todoistTodosGlobal": () => listTodos({scope: "global", context}),
+  "extension.todoistTodosProject": () => listTodos({ scope: "project", context }),
+  "extension.todoistTodosGlobal": () => listTodos({ scope: "global", context }),
   "extension.todoistTodosId": (projectId: string) => listTodos({ customProjectId: projectId, context }),
 
   "extension.todoistOpenProject": () => openProject({ scope: "project", context }),
-  "extension.todoistOpenGlobal": () => openProject({scope: "global", context}),
-  "extension.todoistOpenId": (projectId: string) => openProject({ customProjectId: projectId, context}),
+  "extension.todoistOpenGlobal": () => openProject({ scope: "global", context }),
+  "extension.todoistOpenId": (projectId: string) => openProject({ customProjectId: projectId, context }),
 })
 
 export function activate(context: ExtensionContext) {
