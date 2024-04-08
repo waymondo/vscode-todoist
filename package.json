@@ -2,7 +2,7 @@
   "name": "todoist",
   "displayName": "todoist",
   "description": "Use Todoist for managing and syncing todos",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "waymondo",
   "browser": "./out/browser.js",
   "repository": {

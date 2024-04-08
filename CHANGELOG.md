@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.5
+
+- Added option to update the API token in the SecretStorage settings.
+
 ## 0.4
 
 - Moved token to SecretStorage. This will require you to re-enter your token in the settings. Sorry about that.
