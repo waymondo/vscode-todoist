@@ -66,6 +66,10 @@
       {
         "command": "extension.todoistTodosId",
         "title": "Todoist Todos [Id]"
+      },
+      {
+        "command": "extension.todoistModifyToken",
+        "title": "Todoist Modify Token"
       }
     ],
     "keybindings": [

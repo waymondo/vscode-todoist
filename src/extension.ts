@@ -198,7 +198,19 @@ const openProject = async ({ scope = null, customProjectId, context }: CommandOp
   env.openExternal(Uri.parse(`todoist://project?id=${projectId}`))
 }
 
+const modifyToken = async ({ context }: CommandOptions) => {
+  const newApiToken = await window.showInputBox({ placeHolder: `Enter your Todoist API Token`, password: true })
+
+  if (!newApiToken) {
+    return null
+  }
+
+  context.secrets.store(`todoistApiToken`, newApiToken)
+}
+
 const getCommandHandlers = (context: ExtensionContext) => ({
+  "extension.todoistModifyToken": () => modifyToken({ context }),
+
   "extension.todoistCaptureProject": () => captureTodo({ scope: "project", context }),
   "extension.todoistCaptureGlobal": () => captureTodo({ scope: "global", context }),
   "extension.todoistCaptureId": (projectId: string) => captureTodo({ customProjectId: projectId, context }),
